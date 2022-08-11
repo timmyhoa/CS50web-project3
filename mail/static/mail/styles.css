@@ -1,3 +1,23 @@
 textarea {
     min-height: 400px;
 }
+
+.mailLine {
+    display: flex;
+    border-style: solid;
+    border-width: 1px;
+    justify-content: space-around;
+    cursor: pointer;
+}
+
+/* .sender {
+    justify-content: flex-start;
+}
+
+.subject {
+    justify-content: center;
+
+}
+.time {
+    justify-content: flex-end;
+} */

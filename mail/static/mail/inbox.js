@@ -28,9 +28,9 @@ function compose_email() {
   //Send it away
   document.querySelector('#compose-form').onsubmit = () => {
     //Get recipients, subjects and body
-    recipients = document.querySelector('#compose-recipients').value;
-    subject = document.querySelector('#compose-subject').value;
-    body = document.querySelector('#compose-body').value;
+    let recipients = document.querySelector('#compose-recipients').value;
+    let subject = document.querySelector('#compose-subject').value;
+    let body = document.querySelector('#compose-body').value;
 
     fetch('/emails', {
       method: 'POST',
@@ -42,7 +42,7 @@ function compose_email() {
     })
     .then(response => {
        if (response.ok){
-        success = document.querySelector('#success');
+        let success = document.querySelector('#success');
         success.style.display = 'block';
         console.log('success');
         setTimeout(load_mailbox, 1000, 'sent');
@@ -50,7 +50,7 @@ function compose_email() {
         console.log('error');
         response.json()
         .then(body => {
-          message = document.querySelector('#error');
+          let message = document.querySelector('#error');
           message.innerHTML = body['error'];
           message.style.display = 'block';
         });
@@ -64,9 +64,43 @@ function compose_email() {
 function load_mailbox(mailbox) {
   
   // Show the mailbox and hide other views
-  document.querySelector('#emails-view').style.display = 'block';
+  let mainDisplay = document.querySelector('#emails-view')
+  mainDisplay.style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
 
   // Show the mailbox name
-  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+  mainDisplay.innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+
+  //Get all the available email in the mailbox
+  fetch(`/emails/${mailbox}`)
+  .then(response => response.json())
+  .then(mails => {
+    mails.forEach(mail => {
+
+      let line = document.createElement('div');
+      line.classList.add('mailLine', 'p-3',);
+
+      //Create div for each part to align them in css. 
+      let sender = document.createElement('div');
+      sender.innerHTML = `${mail.sender}`;
+      sender.classList.add('sender')
+      let subject = document.createElement('div');
+      subject.innerHTML = `${mail.subject}`
+      subject.classList.add('subject')
+      let time = document.createElement('div');
+      time.innerHTML = `${mail.timestamp}`;
+      time.classList.add('time')
+
+      line.onclick = () => {
+        viewEmail(mail.id);
+      };
+      line.append(sender, subject, time);
+      line.style.background = mail.read ? 'gray' : 'white';
+      mainDisplay.append(line);
+    });
+  });
+}
+
+function viewEmail(id) {
+  console.log(id);
 }
