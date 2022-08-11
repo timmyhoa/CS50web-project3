@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function compose_email() {
 
   // Show compose view and hide other views
+  document.querySelector('#success').style.display = 'none';
+  document.querySelector('#error').style.display = 'none';
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
@@ -40,13 +42,18 @@ function compose_email() {
     })
     .then(response => {
        if (response.ok){
-        load_mailbox('sent');
+        success = document.querySelector('#success');
+        success.style.display = 'block';
         console.log('success');
+        setTimeout(load_mailbox, 1000, 'sent');
       } else {
         console.log('error');
-        message = document.createElement('h3');
-        message.innerHTML = body['error'];
-        document.querySelector('#compose-view').append(message);
+        response.json()
+        .then(body => {
+          message = document.querySelector('#error');
+          message.innerHTML = body['error'];
+          message.style.display = 'block';
+        });
       };
     });
     return false;
