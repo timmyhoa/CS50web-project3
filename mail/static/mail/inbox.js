@@ -90,12 +90,15 @@ function load_mailbox(mailbox) {
       let time = document.createElement('div');
       time.innerHTML = `${mail.timestamp}`;
       time.classList.add('time')
-
+      
+      //Show email content
       line.onclick = () => {
         viewEmail(mail.id);
       };
+
+      if (mail.read) line.classList.add('read');
+      
       line.append(sender, subject, time);
-      line.style.background = mail.read ? 'gray' : 'white';
       mainDisplay.append(line);
     });
   });

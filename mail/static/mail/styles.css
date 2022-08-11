@@ -10,6 +10,14 @@ textarea {
     cursor: pointer;
 }
 
+.mailLine:hover {
+    background-color: aquamarine;
+}
+
+.read {
+    background-color: #D3D3D3;
+}
+
 /* .sender {
     justify-content: flex-start;
 }
