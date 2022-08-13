@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', compose_email);
+  document.querySelector('#compose').addEventListener('click', () => compose_email());
 
   // By default, load the inbox
   load_mailbox('inbox');
@@ -17,7 +17,7 @@ function clearView() {
   document.querySelector('#viewEmail').style.display = 'none';
 }
 
-function compose_email() {
+function compose_email(recipients = '', subject = '', body = '') {
 
   // Show compose view and hide other views
   clearView();
@@ -26,17 +26,21 @@ function compose_email() {
   document.querySelector('#compose-view').style.display = 'block';
 
   // Clear out composition fields
-  document.querySelector('#compose-recipients').value = '';
-  document.querySelector('#compose-subject').value = '';
-  document.querySelector('#compose-body').value = '';
+  document.querySelector('#compose-recipients').value = recipients;
+  document.querySelector('#compose-subject').value = subject;
+  document.querySelector('#compose-body').value = body;
   
-  
+  if (body) {
+    document.querySelector('#compose-body').focus();
+    document.querySelector('#compose-body').setSelectionRange(0, 0);
+  };
+
   //Send it away
   document.querySelector('#compose-form').onsubmit = () => {
     //Get recipients, subjects and body
-    let recipients = document.querySelector('#compose-recipients').value;
-    let subject = document.querySelector('#compose-subject').value;
-    let body = document.querySelector('#compose-body').value;
+    recipients = document.querySelector('#compose-recipients').value;
+    subject = document.querySelector('#compose-subject').value;
+    body = document.querySelector('#compose-body').value;
 
     fetch('/emails', {
       method: 'POST',
@@ -119,13 +123,24 @@ function viewEmail(id) {
 
   fetch(`/emails/${id}`).then(response => response.json())
   .then(data => {
-
+    console.log(data.body);
     //Fill in the content of the email to html
     document.querySelector('#viewEmailSender').innerHTML = data.sender;
     document.querySelector('#viewEmailRecipients').innerHTML = data.recipients;
     document.querySelector('#viewEmailSubject').innerHTML = data.subject;
     document.querySelector('#viewEmailBody').innerHTML = data.body;
     document.querySelector('#viewEmailTime').innerHTML = data.timestamp;
+    
+    //Handle the reply button
+    let replyBtn = document.querySelector('#replyBtn');
+
+    replyBtn.onclick = () => compose_email(
+      recipients = data.sender, 
+      subject = data.subject.slice(0,3) === 'RE:' ? data.subject : `RE: ${data.subject}`,
+
+      //Js doesn't ignore indentation in literal template :(
+      body = `\n_____________________________________________\nOn ${data.timestamp} ${data.sender} wrote:\n${data.body}`,
+      );
 
     //Handle the archive button
     let archiveBtn = document.querySelector('#archiveBtn');
@@ -135,7 +150,7 @@ function viewEmail(id) {
     } else {
       let archived = data.archived; 
   
-      function changeBtn() {
+      function changeArchiveBtn() {
         if (archived){
           archiveBtn.innerHTML = 'Unarchive';
         } else {
@@ -144,7 +159,7 @@ function viewEmail(id) {
         archived = !archived;
       }
   
-      changeBtn();
+      changeArchiveBtn();
 
       archiveBtn.style.display = 'block';
 

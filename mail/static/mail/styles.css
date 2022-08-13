@@ -22,6 +22,17 @@ textarea {
     float: right;
 }
 
+#viewEmailSubject{
+    float: left;
+}
+
+#replyBtn{
+    float: right;
+}
+
+#viewEmailBody{
+    white-space: pre;
+}
 
 /* #viewEmailSender{
     display: flex;
