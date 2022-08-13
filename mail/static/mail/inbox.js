@@ -1,4 +1,4 @@
-
+let currentMailbox = '';
 
 document.addEventListener('DOMContentLoaded', function() {
   // Use buttons to toggle between views
@@ -12,8 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function clearView() {
-  document.querySelector('#success').style.display = 'none';
-  document.querySelector('#error').style.display = 'none';
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#viewEmail').style.display = 'none';
@@ -23,6 +21,8 @@ function compose_email() {
 
   // Show compose view and hide other views
   clearView();
+  document.querySelector('#success').style.display = 'none';
+  document.querySelector('#error').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
   // Clear out composition fields
@@ -70,6 +70,7 @@ function compose_email() {
 function load_mailbox(mailbox) {
   
   // Show the mailbox and hide other views
+  currentMailbox = mailbox;
   clearView();
   let mainDisplay = document.querySelector('#emails-view');
   mainDisplay.style.display = 'block';
@@ -128,28 +129,33 @@ function viewEmail(id) {
 
     //Handle the archive button
     let archiveBtn = document.querySelector('#archiveBtn');
-    let archived = data.archived; 
-
-    function changeBtn() {
-      console.log(archived);
-      if (archived){
-        archiveBtn.innerHTML = 'Unarchive';
-      } else {
-        archiveBtn.innerHTML = 'Archive';
-      };
-      archived = !archived;
-    }
-
-    changeBtn();
-
-    archiveBtn.onclick = () => {
-      fetch(`/emails/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          archived: archived,
-        })
-      });  
+    
+    if (currentMailbox === 'sent'){
+      archiveBtn.style.display = 'none';
+    } else {
+      archiveBtn.style.display = 'block';
+      let archived = data.archived; 
+  
+      function changeBtn() {
+        if (archived){
+          archiveBtn.innerHTML = 'Unarchive';
+        } else {
+          archiveBtn.innerHTML = 'Archive';
+        };
+        archived = !archived;
+      }
+  
       changeBtn();
+  
+      archiveBtn.onclick = () => {
+        fetch(`/emails/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            archived: archived,
+          })
+        });  
+        changeBtn();
+      };
     }
 
   });
