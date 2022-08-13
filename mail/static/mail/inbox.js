@@ -133,7 +133,6 @@ function viewEmail(id) {
     if (currentMailbox === 'sent'){
       archiveBtn.style.display = 'none';
     } else {
-      archiveBtn.style.display = 'block';
       let archived = data.archived; 
   
       function changeBtn() {
@@ -146,15 +145,21 @@ function viewEmail(id) {
       }
   
       changeBtn();
-  
-      archiveBtn.onclick = () => {
-        fetch(`/emails/${id}`, {
+
+      archiveBtn.style.display = 'block';
+
+      archiveBtn.onclick = async () => {
+        await fetch(`/emails/${id}`, {
           method: 'PUT',
           body: JSON.stringify({
             archived: archived,
           })
         });  
-        changeBtn();
+
+        //Uncomment bellow to change the state of the button after hitting the button
+        // changeBtn();
+
+        load_mailbox('inbox');
       };
     }
 
