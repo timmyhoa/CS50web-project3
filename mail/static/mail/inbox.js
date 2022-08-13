@@ -16,6 +16,7 @@ function clearView() {
   document.querySelector('#error').style.display = 'none';
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#viewEmail').style.display = 'none';
 }
 
 function compose_email() {
@@ -111,26 +112,18 @@ function load_mailbox(mailbox) {
 
 function viewEmail(id) {
   clearView();
-  let viewPort = document.querySelector('#emails-view');
-  viewPort.innerHTML = ''
-  viewPort.style.display = 'block'
 
-  let view = document.createElement('div');
-  let sender = document.createElement('h4');
-  let recipients = document.createElement('h4');
-  let subject = document.createElement('h3');
-  let body = document.createElement('div');
-  let timestamp = document.createElement('footer');
   fetch(`/emails/${id}`).then(response => response.json())
   .then(data => {
-    sender.innerHTML = `Sender: ${data.sender}`;
-    recipients.innerHTML = `To: ${data.recipients}`;
-    subject.innerHTML = `${data.subject}`;
-    body.innerHTML = `${data.body}`;
-    timestamp.innerHTML = `Time: ${data.timestamp}`
+    document.querySelector('#viewEmailSender').append(data.sender);
+    document.querySelector('#viewEmailRecipients').append(data.recipients);
+    document.querySelector('#viewEmailSubject').append(data.subject);
+    document.querySelector('#viewEmailBody').append(data.body);
+    document.querySelector('#viewEmailTime').append(data.timestamp);
   });
-  view.append(subject, sender, recipients, body, timestamp);
-  viewPort.append(view);
+
+  document.querySelector('#viewEmail').style.display = 'block';
+
   fetch(`/emails/${id}`, {
     method: 'PUT',
     body: JSON.stringify({
