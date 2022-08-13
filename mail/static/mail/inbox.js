@@ -1,4 +1,10 @@
 let currentMailbox = '';
+window.onpopstate = event => {
+  app = event.state.app
+  if (app === 'view') viewEmail(event.state.id);
+  else if (app === 'compose') compose_email(event.state.recipients, event.state.subject, event.state.body);
+  else load_mailbox(event.state.app);
+}
 
 document.addEventListener('DOMContentLoaded', function() {
   // Use buttons to toggle between views
@@ -18,6 +24,8 @@ function clearView() {
 }
 
 function compose_email(recipients = '', subject = '', body = '') {
+  //History API
+  history.pushState({app: 'compose', recipients: recipients, subject: subject, body: body}, '', '/compose');
 
   // Show compose view and hide other views
   clearView();
@@ -72,6 +80,9 @@ function compose_email(recipients = '', subject = '', body = '') {
 
 
 function load_mailbox(mailbox) {
+
+  //Implement history API
+  history.pushState({app: mailbox}, '', `/${mailbox}`)
   
   // Show the mailbox and hide other views
   currentMailbox = mailbox;
@@ -117,6 +128,8 @@ function load_mailbox(mailbox) {
 
 function viewEmail(id) {
   clearView();
+
+
   let viewPort = document.querySelector('#viewEmail');
   // viewPort.innerHTML = '';
 
@@ -145,7 +158,7 @@ function viewEmail(id) {
     //Handle the archive button
     let archiveBtn = document.querySelector('#archiveBtn');
     
-    if (currentMailbox === 'sent'){
+    if (history.state.app === 'sent'){
       archiveBtn.style.display = 'none';
     } else {
       let archived = data.archived; 
@@ -177,6 +190,9 @@ function viewEmail(id) {
         load_mailbox('inbox');
       };
     }
+
+    //History API
+    history.pushState({app: 'view', id: id}, '', `/emails/${id}`);
 
   });
 
