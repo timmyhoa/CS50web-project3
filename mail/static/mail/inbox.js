@@ -1,3 +1,4 @@
+//Handle the back button
 window.onpopstate = event => {
   app = event.state.app
   if (app === 'view') viewEmail(event.state.id);
@@ -6,7 +7,7 @@ window.onpopstate = event => {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Use buttons to toggle between views
+  // Use buttons to toggle between views and add to history
   document.querySelector('#inbox').addEventListener('click', () => {
     let mailbox = 'inbox';
     history.pushState({app: mailbox}, '', `/${mailbox}`);
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     history.pushState({app: 'compose',}, '', `/compose`);
     compose_email();
   });
-  // By default, load the inbox
+  // By default, load the inbox and set the first history to be inbox
   load_mailbox('inbox');
   history.replaceState({app: 'inbox'}, '', '/inbox');
 });
@@ -142,7 +143,6 @@ function viewEmail(id) {
 
 
   let viewPort = document.querySelector('#viewEmail');
-  // viewPort.innerHTML = '';
 
 
   fetch(`/emails/${id}`).then(response => response.json())
@@ -199,6 +199,7 @@ function viewEmail(id) {
         //Uncomment bellow to change the state of the button after hitting the button
         // changeBtn();
 
+        //Load mailbox and add to history
         load_mailbox('inbox');
         history.pushState({app: 'inbox'}, '', '/inbox');
       };
@@ -209,6 +210,7 @@ function viewEmail(id) {
    
   viewPort.style.display = 'block';
 
+  //Update the email to be read
   fetch(`/emails/${id}`, {
     method: 'PUT',
     body: JSON.stringify({
