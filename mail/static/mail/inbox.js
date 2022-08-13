@@ -127,7 +127,7 @@ function load_mailbox(mailbox) {
       line.onclick = () => {
         id = mail.id
         history.pushState({app: 'view', id: id}, '', `/emails/${id}`);
-        viewEmail(id);
+        mailbox === 'sent' ? viewEmail(id, true) : viewEmail(id); 
       };
 
       if (mail.read) line.classList.add('read');
@@ -138,7 +138,7 @@ function load_mailbox(mailbox) {
   });
 }
 
-function viewEmail(id) {
+function viewEmail(id, sentInbox = false) {
   clearView();
 
 
@@ -170,7 +170,7 @@ function viewEmail(id) {
     //Handle the archive button
     let archiveBtn = document.querySelector('#archiveBtn');
     
-    if (history.state.app === 'sent'){
+    if (sentInbox){
       archiveBtn.style.display = 'none';
     } else {
       let archived = data.archived; 
