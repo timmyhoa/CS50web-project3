@@ -11,12 +11,17 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
 });
 
-function compose_email() {
-
-  // Show compose view and hide other views
+function clearView() {
   document.querySelector('#success').style.display = 'none';
   document.querySelector('#error').style.display = 'none';
   document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+}
+
+function compose_email() {
+
+  // Show compose view and hide other views
+  clearView();
   document.querySelector('#compose-view').style.display = 'block';
 
   // Clear out composition fields
@@ -64,9 +69,9 @@ function compose_email() {
 function load_mailbox(mailbox) {
   
   // Show the mailbox and hide other views
-  let mainDisplay = document.querySelector('#emails-view')
+  clearView();
+  let mainDisplay = document.querySelector('#emails-view');
   mainDisplay.style.display = 'block';
-  document.querySelector('#compose-view').style.display = 'none';
 
   // Show the mailbox name
   mainDisplay.innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
@@ -105,5 +110,31 @@ function load_mailbox(mailbox) {
 }
 
 function viewEmail(id) {
-  console.log(id);
+  clearView();
+  let viewPort = document.querySelector('#emails-view');
+  viewPort.innerHTML = ''
+  viewPort.style.display = 'block'
+
+  let view = document.createElement('div');
+  let sender = document.createElement('h4');
+  let recipients = document.createElement('h4');
+  let subject = document.createElement('h3');
+  let body = document.createElement('div');
+  let timestamp = document.createElement('footer');
+  fetch(`/emails/${id}`).then(response => response.json())
+  .then(data => {
+    sender.innerHTML = `Sender: ${data.sender}`;
+    recipients.innerHTML = `To: ${data.recipients}`;
+    subject.innerHTML = `${data.subject}`;
+    body.innerHTML = `${data.body}`;
+    timestamp.innerHTML = `Time: ${data.timestamp}`
+  });
+  view.append(subject, sender, recipients, body, timestamp);
+  viewPort.append(view);
+  fetch(`/emails/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      read: true,
+    })
+  });
 }
