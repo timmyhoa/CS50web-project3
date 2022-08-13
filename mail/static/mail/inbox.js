@@ -1,4 +1,3 @@
-let currentMailbox = '';
 window.onpopstate = event => {
   app = event.state.app
   if (app === 'view') viewEmail(event.state.id);
@@ -8,13 +7,28 @@ window.onpopstate = event => {
 
 document.addEventListener('DOMContentLoaded', function() {
   // Use buttons to toggle between views
-  document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
-  document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
-  document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', () => compose_email());
-
+  document.querySelector('#inbox').addEventListener('click', () => {
+    let mailbox = 'inbox';
+    history.pushState({app: mailbox}, '', `/${mailbox}`);
+    load_mailbox(mailbox);
+  });
+  document.querySelector('#sent').addEventListener('click', () => {
+    let mailbox = 'sent';
+    history.pushState({app: mailbox}, '', `/${mailbox}`);
+    load_mailbox(mailbox);
+  });
+  document.querySelector('#archived').addEventListener('click', () => {
+    let mailbox = 'archive';
+    history.pushState({app: mailbox}, '', `/${mailbox}`);
+    load_mailbox(mailbox);
+  });
+  document.querySelector('#compose').addEventListener('click', () => {
+    history.pushState({app: 'compose',}, '', `/compose`);
+    compose_email();
+  });
   // By default, load the inbox
   load_mailbox('inbox');
+  history.replaceState({app: 'inbox'}, '', '/inbox');
 });
 
 function clearView() {
@@ -24,8 +38,6 @@ function clearView() {
 }
 
 function compose_email(recipients = '', subject = '', body = '') {
-  //History API
-  history.pushState({app: 'compose', recipients: recipients, subject: subject, body: body}, '', '/compose');
 
   // Show compose view and hide other views
   clearView();
@@ -81,9 +93,6 @@ function compose_email(recipients = '', subject = '', body = '') {
 
 function load_mailbox(mailbox) {
 
-  //Implement history API
-  history.pushState({app: mailbox}, '', `/${mailbox}`)
-  
   // Show the mailbox and hide other views
   currentMailbox = mailbox;
   clearView();
@@ -115,7 +124,9 @@ function load_mailbox(mailbox) {
       
       //Show email content
       line.onclick = () => {
-        viewEmail(mail.id);
+        id = mail.id
+        history.pushState({app: 'view', id: id}, '', `/emails/${id}`);
+        viewEmail(id);
       };
 
       if (mail.read) line.classList.add('read');
@@ -136,7 +147,6 @@ function viewEmail(id) {
 
   fetch(`/emails/${id}`).then(response => response.json())
   .then(data => {
-    console.log(data.body);
     //Fill in the content of the email to html
     document.querySelector('#viewEmailSender').innerHTML = data.sender;
     document.querySelector('#viewEmailRecipients').innerHTML = data.recipients;
@@ -147,13 +157,15 @@ function viewEmail(id) {
     //Handle the reply button
     let replyBtn = document.querySelector('#replyBtn');
 
-    replyBtn.onclick = () => compose_email(
-      recipients = data.sender, 
-      subject = data.subject.slice(0,3) === 'RE:' ? data.subject : `RE: ${data.subject}`,
+    replyBtn.onclick = () => {
+      recipients = data.sender;
+      subject = data.subject.slice(0,3) === 'RE:' ? data.subject : `RE: ${data.subject}`;
 
       //Js doesn't ignore indentation in literal template :(
-      body = `\n_____________________________________________\nOn ${data.timestamp} ${data.sender} wrote:\n${data.body}`,
-      );
+      body = `\n_____________________________________________\nOn ${data.timestamp} ${data.sender} wrote:\n${data.body}`;
+      compose_email(recipients, subject, body);
+      history.pushState({app: 'compose', recipients: recipients, subject: subject, body: body}, '', '/compose')
+    }
 
     //Handle the archive button
     let archiveBtn = document.querySelector('#archiveBtn');
@@ -188,14 +200,13 @@ function viewEmail(id) {
         // changeBtn();
 
         load_mailbox('inbox');
+        history.pushState({app: 'inbox'}, '', '/inbox');
       };
     }
 
-    //History API
-    history.pushState({app: 'view', id: id}, '', `/emails/${id}`);
-
+    
   });
-
+   
   viewPort.style.display = 'block';
 
   fetch(`/emails/${id}`, {
