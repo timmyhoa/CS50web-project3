@@ -15,17 +15,23 @@
     </div>
 
     <div id="viewEmail" class="mb-5">
-        <h3 id="viewEmailSubject"></h3>
-        <div id="viewEmailSender" class="mb-3">
-            <label class="h4">Sender: </label>
+        <div style="overflow:hidden;">
+            <h3 style="float:left;" id="viewEmailSubject"></h3>
+            <button class="btn btn-primary" id="archiveBtn"></button>
         </div>
-        <div id="viewEmailRecipients" class="mb-3">
-            <label class="h4">To: </label>
+        <div>
+            <label class="h5">Sender: </label>
+            <span id="viewEmailSender"></span>
+        </div>
+        <div class="mb-2">
+            <label class="h5">To: </label>
+            <span id="viewEmailRecipients"></span>
         </div>
         <div id="viewEmailBody" class="mb-3">
         </div>
-        <footer id="viewEmailTime">
-            <strong>Time:</strong> 
+        <footer>
+            <label >Time: </label>
+            <span id="viewEmailTime"></span>
         </footer>
     </div>
 

@@ -112,17 +112,49 @@ function load_mailbox(mailbox) {
 
 function viewEmail(id) {
   clearView();
+  let viewPort = document.querySelector('#viewEmail');
+  // viewPort.innerHTML = '';
+
 
   fetch(`/emails/${id}`).then(response => response.json())
   .then(data => {
-    document.querySelector('#viewEmailSender').append(data.sender);
-    document.querySelector('#viewEmailRecipients').append(data.recipients);
-    document.querySelector('#viewEmailSubject').append(data.subject);
-    document.querySelector('#viewEmailBody').append(data.body);
-    document.querySelector('#viewEmailTime').append(data.timestamp);
+
+    //Fill in the content of the email to html
+    document.querySelector('#viewEmailSender').innerHTML = data.sender;
+    document.querySelector('#viewEmailRecipients').innerHTML = data.recipients;
+    document.querySelector('#viewEmailSubject').innerHTML = data.subject;
+    document.querySelector('#viewEmailBody').innerHTML = data.body;
+    document.querySelector('#viewEmailTime').innerHTML = data.timestamp;
+
+    //Handle the archive button
+    let archiveBtn = document.querySelector('#archiveBtn');
+    let archived = data.archived; 
+
+    function changeBtn() {
+      console.log(archived);
+      if (archived){
+        archiveBtn.innerHTML = 'Unarchive';
+      } else {
+        archiveBtn.innerHTML = 'Archive';
+      };
+      archived = !archived;
+    }
+
+    changeBtn();
+
+    archiveBtn.onclick = () => {
+      fetch(`/emails/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          archived: archived,
+        })
+      });  
+      changeBtn();
+    }
+
   });
 
-  document.querySelector('#viewEmail').style.display = 'block';
+  viewPort.style.display = 'block';
 
   fetch(`/emails/${id}`, {
     method: 'PUT',
