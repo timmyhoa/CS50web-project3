@@ -1,5 +1,5 @@
 # CS50web-project3
-A mail web application made using django and vanilla JS.
+A mail single page web application made using django and vanilla JS.
 
 
 ## Things to do when have time
